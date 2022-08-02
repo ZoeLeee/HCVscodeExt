@@ -1,26 +1,154 @@
-//ref:https://segmentfault.com/a/1190000040720760https://segmentfault.com/a/1190000040720760
+//ref:https://segmentfault.com/a/1190000040720760
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import * as fs from "fs";
+import * as path from "path";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "hcuiitemcreate" is now active!');
+  console.log("插件已经被激活");
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('hcuiitemcreate.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from HCUIItemCreate!');
-	});
+  // 注册命令
+  const commandOfGetFileState = vscode.commands.registerCommand(
+    "getFileState",
+    (uri) => {
+      // 文件路径
+      const filePath = uri.path.substring(1);
+      fs.stat(filePath, (err, stats) => {
+        if (err) {
+          vscode.window.showErrorMessage(`获取文件时遇到错误了${err}!!!`);
+        }
 
-	context.subscriptions.push(disposable);
+        if (stats.isDirectory()) {
+          vscode.window.showWarningMessage(
+            `检测的是文件夹，不是文件，请重新选择！！！`
+          );
+        }
+
+        if (stats.isFile()) {
+          const size = stats.size;
+          const createTime = stats.birthtime.toLocaleString();
+          const modifyTime = stats.mtime.toLocaleString();
+
+          vscode.window.showInformationMessage(
+            `
+                    文件大小为:${size}字节;
+                    文件创建时间为:${createTime};
+                    文件修改时间为:${modifyTime}
+                `,
+            { modal: true }
+          );
+        }
+      });
+
+      const stats = fs.statSync(filePath);
+      console.log("stats", stats);
+      console.log("isFile", stats.isFile());
+    }
+  );
+
+  const commandOfCreateComponentFolder = vscode.commands.registerCommand(
+    "createComponentFolder",
+    (uri) => {
+      // 文件路径
+      let filePath = uri.path.substring(1);
+
+      const stats = fs.statSync(filePath);
+      const isDir = stats.isDirectory();
+      if (!isDir) {
+        console.log("filePath: ", filePath);
+        filePath = path.dirname(filePath);
+      }
+      vscode.window
+        .showInputBox({
+          // 这个对象中所有参数都是可选参数
+          password: false, // 输入内容是否是密码
+          ignoreFocusOut: false, // 默认false，设置为true时鼠标点击别的地方输入框不会消失
+          placeHolder: "输入组件名称", // 在输入框内的提示信息
+          prompt: isDir
+            ? "将在该目录下创建组件目录"
+            : "将在该文件同级目录下创建文件", // 在输入框下方的提示信息
+          validateInput: (test) => {
+            if (!/^[A-Za-z].*/.test(test)) {
+              return "必须字母开头";
+            }
+
+            if (test.length === 0) {
+              return "目录名不能为空";
+            }
+            return null;
+          },
+        })
+        .then(function (msg) {
+          const dir = filePath + "/" + msg;
+          fs.mkdirSync(dir);
+          const cname = msg![0].toUpperCase() + msg?.slice(1);
+          fs.writeFile(
+            dir + "/index.tsx",
+            `import React, { useState } from "react";
+          
+interface ${cname}Props {
+  title: string;
+  options: { label: string; onClick: (close: () => void) => void }[];
+  buttonProps?: ButtonProps;
+}
+
+const ${cname}: React.FC<${cname}Props> = () => {
+  return (
+    <div></div>
+  );
+};`,
+            { encoding: "utf-8" },
+            (err) => {
+              console.log(err);
+            }
+          );
+
+          fs.writeFile(
+            dir + "/index.md",
+            `---
+nav:
+  title: Components
+  path: /components
+---
+
+## ${cname}`,
+            { encoding: "utf-8" },
+            (err) => {
+              console.log(err);
+            }
+          );
+
+          const testdir = dir + "/__test__";
+          fs.mkdirSync(testdir);
+
+          fs.writeFile(
+            testdir + "/index.test.tsx",
+            `import React from 'react';
+import { render, fireEvent, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { ${cname} } from '../';
+
+describe('${cname}', () => {
+  it('${cname}', async () => {
+
+  });
+});`,
+            { encoding: "utf-8" },
+            (err) => {
+              console.log(err);
+            }
+          );
+        });
+    }
+  );
+
+  // 将命令放入其上下文对象中，使其生效
+  context.subscriptions.push(
+    commandOfGetFileState,
+    commandOfCreateComponentFolder
+  );
 }
 
 // this method is called when your extension is deactivated

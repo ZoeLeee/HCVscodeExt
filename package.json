@@ -1,7 +1,7 @@
 {
-  "name": "hcuiitemcreate",
-  "displayName": "HCUIItemCreate",
-  "description": "",
+  "name": "hcvscodeext",
+  "displayName": "VsCode扩展包",
+  "description": "VsCode扩展工具包",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.69.0"
@@ -10,16 +10,40 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:hcuiitemcreate.helloWorld"
+    "onCommand:getFileState",
+    "onCommand:createComponentFolder"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "hcuiitemcreate.helloWorld",
-        "title": "Hello World"
+        "command": "getFileState",
+        "title": "File State"
+      },
+      {
+        "command": "createComponentFolder",
+        "title": "添加组件"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorFocus",
+          "command": "getFileState",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "getFileState",
+          "group": "navigation"
+        },
+        {
+          "command": "createComponentFolder",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
