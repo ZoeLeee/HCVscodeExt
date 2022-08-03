@@ -90,9 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
             `import React, { useState } from "react";
           
 interface ${cname}Props {
-  title: string;
-  options: { label: string; onClick: (close: () => void) => void }[];
-  buttonProps?: ButtonProps;
+  
 }
 
 const ${cname}: React.FC<${cname}Props> = () => {
