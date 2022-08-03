@@ -10,45 +10,6 @@ import * as path from "path";
 export function activate(context: vscode.ExtensionContext) {
   console.log("插件已经被激活");
 
-  // 注册命令
-  const commandOfGetFileState = vscode.commands.registerCommand(
-    "getFileState",
-    (uri) => {
-      // 文件路径
-      const filePath = uri.path.substring(1);
-      fs.stat(filePath, (err, stats) => {
-        if (err) {
-          vscode.window.showErrorMessage(`获取文件时遇到错误了${err}!!!`);
-        }
-
-        if (stats.isDirectory()) {
-          vscode.window.showWarningMessage(
-            `检测的是文件夹，不是文件，请重新选择！！！`
-          );
-        }
-
-        if (stats.isFile()) {
-          const size = stats.size;
-          const createTime = stats.birthtime.toLocaleString();
-          const modifyTime = stats.mtime.toLocaleString();
-
-          vscode.window.showInformationMessage(
-            `
-                    文件大小为:${size}字节;
-                    文件创建时间为:${createTime};
-                    文件修改时间为:${modifyTime}
-                `,
-            { modal: true }
-          );
-        }
-      });
-
-      const stats = fs.statSync(filePath);
-      console.log("stats", stats);
-      console.log("isFile", stats.isFile());
-    }
-  );
-
   const commandOfCreateComponentFolder = vscode.commands.registerCommand(
     "createComponentFolder",
     (uri) => {
@@ -143,10 +104,7 @@ describe('${cname}', () => {
   );
 
   // 将命令放入其上下文对象中，使其生效
-  context.subscriptions.push(
-    commandOfGetFileState,
-    commandOfCreateComponentFolder
-  );
+  context.subscriptions.push(commandOfCreateComponentFolder);
 }
 
 // this method is called when your extension is deactivated
