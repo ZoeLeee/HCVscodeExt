@@ -2,7 +2,7 @@
   "name": "hcvscodeext",
   "displayName": "VsCode扩展包",
   "description": "VsCode扩展工具包",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "lizhou",
   "publisher": "lizhou",
   "license": "Apache License",
@@ -22,6 +22,10 @@
       {
         "command": "createComponentFolder",
         "title": "添加组件"
+      },
+      {
+        "command": "exportIndex",
+        "title": "导出入口文件"
       }
     ],
     "menus": {
@@ -29,6 +33,10 @@
       "explorer/context": [
         {
           "command": "createComponentFolder",
+          "group": "haichuang"
+        },
+        {
+          "command": "exportIndex",
           "group": "haichuang"
         }
       ]
