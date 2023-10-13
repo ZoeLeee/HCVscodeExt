@@ -16,7 +16,13 @@ export const commandOfExportIndex = vscode.commands.registerCommand(
         if (file === "index.ts") {
           continue;
         }
-        strs.push(`export * from "./${file.split(".")[0]}";`);
+        
+        const temps=file.split(".");
+        temps.pop();
+
+        const fileName=temps.join(".");
+
+        strs.push(`export * from "./${fileName}";`);
       }
       fs.writeFileSync(filePath + "/index.ts", strs.join("\n\r"));
     }
