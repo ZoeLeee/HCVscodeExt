@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as path from "path";
 
 export const commandOfExportIndex = vscode.commands.registerCommand(
   "exportIndex",
@@ -16,14 +17,20 @@ export const commandOfExportIndex = vscode.commands.registerCommand(
         if (file === "index.ts") {
           continue;
         }
-        
-        const temps=file.split(".");
-        temps.pop();
 
-        const fileName=temps.join(".");
+        const url = filePath + "/" + file;
 
-        strs.push(`export * from "./${fileName}";`);
+        const stat2 = fs.statSync(url);
+
+        if (stat2.isDirectory()) {
+          strs.push(`export * from "./${file}";`);
+        } else {
+          const fileName = path.basename(file,path.extname(file));
+
+          strs.push(`export * from "./${fileName}";`);
+        }
       }
+
       fs.writeFileSync(filePath + "/index.ts", strs.join("\n\r"));
     }
   }
