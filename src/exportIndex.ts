@@ -18,6 +18,10 @@ export const commandOfExportIndex = vscode.commands.registerCommand(
           continue;
         }
 
+        if (file === "node_modules") {
+          continue;
+        }
+
         const url = filePath + "/" + file;
 
         const stat2 = fs.statSync(url);
@@ -25,7 +29,11 @@ export const commandOfExportIndex = vscode.commands.registerCommand(
         if (stat2.isDirectory()) {
           strs.push(`export * from "./${file}";`);
         } else {
-          const fileName = path.basename(file,path.extname(file));
+          if (path.extname(file) !== ".ts") {
+            continue;
+          }
+
+          const fileName = path.basename(file, path.extname(file));
 
           strs.push(`export * from "./${fileName}";`);
         }
