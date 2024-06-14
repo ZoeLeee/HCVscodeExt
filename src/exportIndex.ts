@@ -5,41 +5,50 @@ import * as path from "path";
 export const commandOfExportIndex = vscode.commands.registerCommand(
   "exportIndex",
   (uri) => {
-    const filePath = uri.path.substring(1);
-    const stat = fs.statSync(filePath);
+    try {
+      let filePath = uri.path;
 
-    if (stat.isDirectory()) {
-      const files = fs.readdirSync(filePath);
+      if (process.platform === "win32") {
+        filePath = filePath.substring(1);
+      }
 
-      const strs: string[] = [];
+      const stat = fs.statSync(filePath);
 
-      for (const file of files) {
-        if (file === "index.ts") {
-          continue;
-        }
+      if (stat.isDirectory()) {
+        const files = fs.readdirSync(filePath);
 
-        if (file === "node_modules") {
-          continue;
-        }
+        const strs: string[] = [];
 
-        const url = filePath + "/" + file;
-
-        const stat2 = fs.statSync(url);
-
-        if (stat2.isDirectory()) {
-          strs.push(`export * from "./${file}";`);
-        } else {
-          if (path.extname(file) !== ".ts") {
+        for (const file of files) {
+          if (file === "index.ts") {
             continue;
           }
 
-          const fileName = path.basename(file, path.extname(file));
+          if (file === "node_modules") {
+            continue;
+          }
 
-          strs.push(`export * from "./${fileName}";`);
+          const url = filePath + "/" + file;
+
+          const stat2 = fs.statSync(url);
+
+          if (stat2.isDirectory()) {
+            strs.push(`export * from "./${file}";`);
+          } else {
+            if (path.extname(file) !== ".ts") {
+              continue;
+            }
+
+            const fileName = path.basename(file, path.extname(file));
+
+            strs.push(`export * from "./${fileName}";`);
+          }
         }
-      }
 
-      fs.writeFileSync(filePath + "/index.ts", strs.join("\n\r"));
+        fs.writeFileSync(filePath + "/index.ts", strs.join("\n\r"));
+      }
+    } catch (err) {
+      console.log("err: ", err);
     }
   }
 );
