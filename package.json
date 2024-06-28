@@ -2,7 +2,7 @@
   "name": "hcvscodeext",
   "displayName": "VsCode扩展包",
   "description": "VsCode扩展工具包",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "lizhou",
   "publisher": "lizhou",
   "license": "Apache License",
