@@ -20,7 +20,7 @@ export const commandOfExportIndex = vscode.commands.registerCommand(
         const strs: string[] = [];
 
         for (const file of files) {
-          if (file === "index.ts") {
+          if (file === "index.ts" || file === "index.tsx") {
             continue;
           }
 
@@ -35,7 +35,7 @@ export const commandOfExportIndex = vscode.commands.registerCommand(
           if (stat2.isDirectory()) {
             strs.push(`export * from "./${file}";`);
           } else {
-            if (path.extname(file) !== ".ts") {
+            if (path.extname(file) !== ".ts" && path.extname(file) !== ".tsx") {
               continue;
             }
 
@@ -45,7 +45,11 @@ export const commandOfExportIndex = vscode.commands.registerCommand(
           }
         }
 
-        fs.writeFileSync(filePath + "/index.ts", strs.join("\n\r"));
+        const content = strs.join(
+          process.platform === "win32" || true ? "\n\r" : "\n"
+        );
+
+        fs.writeFileSync(filePath + "/index.ts", content);
       }
     } catch (err) {
       console.log("err: ", err);
